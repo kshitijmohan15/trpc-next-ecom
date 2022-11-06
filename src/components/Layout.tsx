@@ -7,15 +7,15 @@ type Props = {
 
 const Layout = ({ children }: Props) => {
 	return (
-		<div className="flex min-h-screen flex-col justify-between ">
+		<div className="flex min-h-screen w-full flex-col justify-between">
 			<header>
-				<nav className="flex h-12 items-center justify-between px-4 shadow-md">
+				<nav className="flex h-12 w-full items-center justify-between px-4 shadow-md">
 					<Link legacyBehavior href="/">
 						<a href="" className="text-lg font-bold ">
 							Website Name
 						</a>
 					</Link>
-					<div>
+					<div className="flex gap-2">
 						<Link legacyBehavior href={"/cart"}>
 							<a>Cart</a>
 						</Link>
@@ -25,7 +25,7 @@ const Layout = ({ children }: Props) => {
 					</div>
 				</nav>
 			</header>
-			<main className="container my-auto mt-4 px-4">{children}</main>
+			<main className="min-w-screen container my-auto mt-4 px-4">{children}</main>
 			<footer className="flex h-10 items-center justify-center shadow-inner">Footer</footer>
 		</div>
 	);
