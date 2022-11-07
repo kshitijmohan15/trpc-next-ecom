@@ -21,8 +21,3 @@ model Product {
   rating      Json
   title       String
 }
-
-model Test {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-}

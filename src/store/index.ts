@@ -4,9 +4,8 @@ import { devtools, persist } from "zustand/middleware";
 interface Global {
 	token: string;
 	token2: string;
-	count: number;
-	incrementCount: () => void;
 	updateToken: (newToken: string) => void;
+	count: number;
 }
 
 export const useStore = create<Global>()(
@@ -14,10 +13,9 @@ export const useStore = create<Global>()(
 		persist(
 			(set) => ({
 				token: "Kshitij1",
-				token2: "Second Token",
-				count: 0,
-				incrementCount: () => set((state) => ({ count: state.count + 1 })),
-				updateToken: (newToken) => set((state) => ({ token: newToken })),
+				updateToken: (newToken) => set((state) => ({ ...state, token: newToken })),
+				count: 2200,
+				token2: "oken",
 			}),
 			{ name: "global" }
 		)

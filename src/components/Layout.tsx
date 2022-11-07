@@ -1,13 +1,18 @@
 import Link from "next/link";
 import React from "react";
+import Head from "next/head";
 
 type Props = {
 	children: React.ReactNode;
+	title?: string;
 };
 
-const Layout = ({ children }: Props) => {
+const Layout = ({ children, title }: Props) => {
 	return (
 		<div className="flex min-h-screen w-full flex-col justify-between">
+			<Head>
+				<title>{title}</title>
+			</Head>
 			<header>
 				<nav className="flex h-12 w-full items-center justify-between px-4 shadow-md">
 					<Link legacyBehavior href="/">
@@ -25,8 +30,10 @@ const Layout = ({ children }: Props) => {
 					</div>
 				</nav>
 			</header>
-			<main className="min-w-screen container my-auto mt-4 px-4">{children}</main>
-			<footer className="flex h-10 items-center justify-center shadow-inner">Footer</footer>
+			<main className="min-w-screen container">{children}</main>
+			<footer className="flex h-10 items-center justify-center bg-gray-100 shadow-inner">
+				Made with love by Kshitij
+			</footer>
 		</div>
 	);
 };
