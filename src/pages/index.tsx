@@ -4,15 +4,26 @@ import Layout from "../components/Layout";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { trpc } from "../utils/trpc";
 import { useStore } from "../store";
-import { useStoreInComponent } from "../hooks/zustandHooks";
+import { getFromStore } from "../hooks/zustandHooks";
+import { signJwt } from "../utils/jwt";
 
 const Home: NextPage = () => {
 	const { data: products } = trpc.product.getAll.useQuery();
-	const token = useStoreInComponent(useStore, (state) => state.token);
+	const token = getFromStore(useStore, (state) => state.token);
+
+	const updateToken = useStore((state) => state.updateToken);
+
+	async function updateAccessToken() {
+		const accessToken = signJwt({ ma: "pipe up" }, "secretKey", { expiresIn: "1m" });
+		updateToken(accessToken);
+	}
 
 	return (
 		<Layout title="Home">
 			<div>{token}</div>
+			<Button onClick={updateAccessToken} variant="contained">
+				Sumbit
+			</Button>
 			<div className=" grid w-screen grid-cols-1 gap-6 bg-gray-100 py-6 px-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 				{products?.map((item, index) => {
 					return (
