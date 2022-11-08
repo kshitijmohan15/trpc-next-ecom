@@ -9,7 +9,7 @@ type Props = {
 
 const Layout = ({ children, title }: Props) => {
 	return (
-		<div className="flex min-h-screen w-full flex-col justify-between">
+		<div className="min-w-screen flex min-h-screen w-full flex-col justify-between">
 			<Head>
 				<title>{title}</title>
 			</Head>
@@ -30,7 +30,7 @@ const Layout = ({ children, title }: Props) => {
 					</div>
 				</nav>
 			</header>
-			<main className="min-w-screen container">{children}</main>
+			<main className="min-w-screen">{children}</main>
 			<footer className="flex h-10 items-center justify-center bg-gray-100 shadow-inner">
 				Made with love by Kshitij
 			</footer>

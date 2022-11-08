@@ -14,4 +14,8 @@ export const productRouter = router({
 		});
 		return { data };
 	}),
+	getEnv: publicProcedure.query(() => {
+		const env = process.env.NEXT_PUBLIC_DATABASE_NAME as string;
+		return env;
+	}),
 });
