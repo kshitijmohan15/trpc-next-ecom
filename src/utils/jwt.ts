@@ -7,10 +7,10 @@ export function signJwt(payload: Object, options?: jwt.SignOptions | undefined) 
 	});
 }
 
-export function verifyJwt<T>(token: string, key: string): T | null {
+export function verifyJwt<T>(token: string, key: string, opts: any): T | null {
 	try {
 		const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY as string;
-		return jwt.verify(token, secretKey) as T;
+		return jwt.verify(token, secretKey, opts) as T;
 	} catch (error) {
 		console.error(error);
 		return null;

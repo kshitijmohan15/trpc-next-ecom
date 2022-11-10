@@ -3,15 +3,9 @@ import { type NextPage } from "next";
 import Layout from "../components/Layout";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { trpc } from "../utils/trpc";
-import { useStore } from "../store/globalStore";
-import { getFromStore } from "../hooks/zustandHooks";
-import { signJwt } from "../utils/jwt";
 
 const Products: NextPage = () => {
 	const { data: products } = trpc.product.getAll.useQuery();
-
-	const token = getFromStore(useStore, (state) => state.token);
-	const updateToken = useStore((state) => state.updateToken);
 
 	return (
 		<Layout title="Products">

