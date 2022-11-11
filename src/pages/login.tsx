@@ -3,9 +3,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import React from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
-import { toast, ToastContainer } from "react-toastify";
+import { toast, ToastContainer, ToastOptions } from "react-toastify";
 import FormInput from "../components/FormInput";
-import { getFromStore } from "../hooks/zustandHooks";
+import { useGetFromStore } from "../hooks/zustandHooks";
 import { LoadingButton } from "../components/LoadingButton";
 import { LoginUserInput, loginUserSchema } from "../server/schema/user.schema";
 import { useStore } from "../store/globalStore";
@@ -16,9 +16,9 @@ import Layout from "../components/Layout";
 
 const Login = () => {
 	// zustand interactions
-	const token = getFromStore(useStore, (state) => state.token);
-	const authUser = getFromStore(useStore, (state) => state.authUser);
-	// const [token, user] = getFromStore(useStore, (state) => [state.token, state.authUser]);
+	const token = useGetFromStore(useStore, (state) => state.token);
+	const authUser = useGetFromStore(useStore, (state) => state.authUser);
+	// const [token, user] = useGetFromStore(useStore, (state) => [state.token, state.authUser]);
 	const [setAuthUser, updateToken, logout] = useStore((state) => [
 		state.setAuthUser,
 		state.updateToken,
@@ -81,11 +81,23 @@ const Login = () => {
 		// 👇 Executing the loginUser Mutation
 		loginUser(values);
 	};
+	function handleVerifyJWT() {
+		mutate(token as string);
+	}
+	const handleToast = (message: string, type: ToastOptions["type"]) =>
+		toast(message, { type: type, position: "top-right" });
 
+	const { mutate } = trpc.test.validateJwt.useMutation({
+		onSuccess(data) {
+			handleToast("JWT Verified", "success");
+		},
+		onError(error) {
+			handleToast(error.message, "error");
+		},
+	});
 	return (
 		<Layout title="Login">
 			<FormProvider {...methods}>
-				<ToastContainer />
 				<form
 					onSubmit={handleSubmit(onSubmitHandler)}
 					className="bg-ct-dark-200 mx-auto flex w-full max-w-md flex-col space-y-5 overflow-hidden rounded-2xl p-8 shadow-lg"
@@ -118,6 +130,9 @@ const Login = () => {
 				<button onClick={handleLogout}>Logout</button>
 			</FormProvider>
 			<div>{JSON.stringify(authUser)}</div>
+			<div className="overflow-hidden">{JSON.stringify(token)}</div>
+			<button onClick={handleVerifyJWT}>Done</button>
+			<ToastContainer />
 		</Layout>
 	);
 };

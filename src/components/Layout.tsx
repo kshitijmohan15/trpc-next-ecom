@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import Head from "next/head";
+import { ToastContainer } from "react-toastify";
 
 type Props = {
 	children: React.ReactNode;
@@ -13,6 +14,7 @@ const Layout = ({ children, title }: Props) => {
 			<Head>
 				<title>{title}</title>
 			</Head>
+
 			<header>
 				<nav className="flex h-12 w-full items-center justify-between px-4 shadow-md">
 					<Link legacyBehavior href="/">

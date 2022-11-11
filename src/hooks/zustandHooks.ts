@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export function getFromStore<T, F>(
+export function useGetFromStore<T, F>(
 	store: (callback: (state: T) => unknown) => unknown,
 	storeCallback: (state: T) => F
 ): F {

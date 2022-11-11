@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
 
-export function signJwt(payload: Object, options?: jwt.SignOptions | undefined) {
+export function signJwt(
+	payload: Record<string, unknown>,
+	options?: jwt.SignOptions | undefined
+) {
 	const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY as string;
 	return jwt.sign(payload, secretKey, {
 		...(options && options),

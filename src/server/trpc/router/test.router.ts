@@ -1,11 +1,11 @@
-import { createGzip } from "zlib";
-import { string, z } from "zod";
-import { createProductSchema } from "../../schema/product.schema";
+import { z } from "zod";
+import jwt from "jsonwebtoken";
 import axios from "axios";
 import { router, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 const getCircularReplacer = () => {
 	const seen = new WeakSet();
-	return (key: any, value: any) => {
+	return (value: any) => {
 		if (typeof value === "object" && value !== null) {
 			if (seen.has(value)) {
 				return;
@@ -26,4 +26,19 @@ export const testRouter = router({
 		);
 		return result;
 	}),
+	validateJwt: publicProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			try {
+				const decoded = jwt.verify(
+					input,
+					process.env.NEXT_PUBLIC_SECRET_KEY!
+				);
+			} catch (error) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "JWT could not be verified",
+				});
+			}
+		}),
 });
