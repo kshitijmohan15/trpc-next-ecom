@@ -1,4 +1,7 @@
-import { loginController, registerController } from "../../controllers/auth.controller";
+import {
+	loginController,
+	registerController,
+} from "../../controllers/auth.controller";
 import { createUserSchema, loginUserSchema } from "../../schema/user.schema";
 import { publicProcedure, router } from "../trpc";
 

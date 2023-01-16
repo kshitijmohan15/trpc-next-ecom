@@ -5,47 +5,44 @@ import React from "react";
 import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer, ToastOptions } from "react-toastify";
 import FormInput from "../components/FormInput";
+import Button from "@mui/material/Button";
 import { useGetFromStore } from "../hooks/zustandHooks";
 import { LoadingButton } from "../components/LoadingButton";
 import { LoginUserInput, loginUserSchema } from "../server/schema/user.schema";
-import { useStore } from "../store/globalStore";
+import { useAuthUser, useStore, useToken } from "../store/globalStore";
 import { verifyJwt } from "../utils/jwt";
 import { trpc } from "../utils/trpc";
 import { IUser } from "../types/types";
 import Layout from "../components/Layout";
+import { useRouter } from "next/router";
 
 const Login = () => {
 	// zustand interactions
-	const token = useGetFromStore(useStore, (state) => state.token);
-	const authUser = useGetFromStore(useStore, (state) => state.authUser);
-	// const [token, user] = useGetFromStore(useStore, (state) => [state.token, state.authUser]);
-	const [setAuthUser, updateToken, logout] = useStore((state) => [
+	const token = useToken();
+	const authUser = useAuthUser();
+	// these never change, so they can be imported together at once without re-rendering this component.
+	const [logout, setAuthUser, updateToken] = useStore((state) => [
+		state.reset,
 		state.setAuthUser,
 		state.updateToken,
-		state.reset,
 	]);
 
 	// handle zustand interactions
-	function handleLogout() {
-		logout();
-	}
-
+	const nextRouter = useRouter();
 	// hook-form interactions
 	const methods = useForm<LoginUserInput>({
 		resolver: zodResolver(loginUserSchema),
 	});
 	const {
-		reset,
 		handleSubmit,
 		formState: { isSubmitSuccessful },
 	} = methods;
 
 	//  trpc
 	const { mutate: loginUser, isLoading } = trpc.auth.loginUser.useMutation({
-		meta: { headers: { Authorization: `Bearer ${token}` } },
 		async onSuccess(data) {
 			const { signedToken } = data;
-			const decoded = await verifyJwt<IUser>(
+			verifyJwt<IUser>(
 				signedToken,
 				process.env.NEXT_PUBLIC_SECRET_KEY!,
 				async (err: any, result: any) => {
@@ -65,6 +62,7 @@ const Login = () => {
 						role: result.role,
 						email: result.email,
 					});
+					nextRouter.push("/profile");
 					return result;
 				}
 			);
@@ -76,25 +74,27 @@ const Login = () => {
 			});
 		},
 	});
-
-	const onSubmitHandler: SubmitHandler<LoginUserInput> = (values) => {
-		// 👇 Executing the loginUser Mutation
-		loginUser(values);
-	};
-	function handleVerifyJWT() {
-		mutate(token as string);
-	}
-	const handleToast = (message: string, type: ToastOptions["type"]) =>
-		toast(message, { type: type, position: "top-right" });
-
-	const { mutate } = trpc.test.validateJwt.useMutation({
-		onSuccess(data) {
+	const { mutate: testJwt } = trpc.test.validateJwt.useMutation({
+		onSuccess() {
 			handleToast("JWT Verified", "success");
 		},
 		onError(error) {
 			handleToast(error.message, "error");
+			logout();
 		},
 	});
+
+	function handleVerifyJWT() {
+		testJwt(token as string);
+	}
+
+	const onSubmitHandler: SubmitHandler<LoginUserInput> = (values) => {
+		loginUser(values);
+	};
+
+	const handleToast = (message: string, type: ToastOptions["type"]) =>
+		toast(message, { type: type, position: "top-right" });
+
 	return (
 		<Layout title="Login">
 			<FormProvider {...methods}>
@@ -110,7 +110,7 @@ const Login = () => {
 					/>
 
 					<div className="text-right">
-						<Link legacyBehavior href="#" className="">
+						<Link href="#" className="">
 							Forgot Password?
 						</Link>
 					</div>
@@ -122,16 +122,20 @@ const Login = () => {
 					</LoadingButton>
 					<span className="block">
 						Need an account?{" "}
-						<Link legacyBehavior href="/register">
-							<a className="text-ct-blue-600">Sign Up Here</a>
+						<Link href="/register">
+							<div className="text-ct-blue-600">Sign Up Here</div>
 						</Link>
 					</span>
 				</form>
-				<button onClick={handleLogout}>Logout</button>
 			</FormProvider>
-			<div>{JSON.stringify(authUser)}</div>
-			<div className="overflow-hidden">{JSON.stringify(token)}</div>
-			<button onClick={handleVerifyJWT}>Done</button>
+			<div className="flex w-10 flex-col gap-4 px-8">
+				<pre>
+					<div>{JSON.stringify(authUser, null, 2)}</div>
+				</pre>
+				<Button variant="outlined" onClick={handleVerifyJWT}>
+					Done
+				</Button>
+			</div>
 			<ToastContainer />
 		</Layout>
 	);

@@ -34,6 +34,7 @@ export const testRouter = router({
 					input,
 					process.env.NEXT_PUBLIC_SECRET_KEY!
 				);
+				return decoded;
 			} catch (error) {
 				throw new TRPCError({
 					code: "FORBIDDEN",
